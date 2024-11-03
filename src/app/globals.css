@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face {
+  font-family: "Inter";
+  src: url("../app/fonts/Inter-Regular.ttf");
+}
+@font-face {
+  font-family: "Inter Black";
+  src: url("../app/fonts/Inter-Black.woff2");
+}
+@font-face {
+  font-family: "Inter Bold";
+  src: url("../app/fonts/Inter-Bold.woff2");
+}
+@font-face {
+  font-family: "Inter Medium";
+  src: url("../app/fonts/Inter-Medium.woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("../app/fonts/Poppins-Regular.otf");
+}
+@font-face {
+  font-family: "Poppins Black";
+  src: url("../app/fonts/Poppins-Black.otf");
+}
+@font-face {
+  font-family: "Poppins Bold";
+  src: url("../app/fonts/Poppins-Bold.otf");
+}
+@font-face {
+  font-family: "Poppins Extra Bold";
+  src: url("../app/fonts/Poppins-ExtraBold.otf");
+}
+@font-face {
+  font-family: "Poppins Semi Bold";
+  src: url("../app/fonts/Poppins-SemiBold.otf");
+}
+@font-face {
+  font-family: "Poppins Medium";
+  src: url("../app/fonts/Poppins-Medium.otf");
+}
+@font-face {
+    font-family: "Mona Regular";
+    src: url("../app/fonts/MonaSans-Regular.ttf");
+  }
+  
+  @font-face {
+    font-family: "Mona Bold";
+    src: url("../app/fonts/MonaSans-Bold.ttf");
+  }
+  
+  
+  @font-face {
+    font-family: "Mona SemiBold";
+    src: url("../app/fonts/MonaSans-SemiBold.ttf");
+  }
+  
+  
+  @font-face {
+    font-family: "Mona Medium";
+    src: url("../app/fonts/MonaSans-Medium.ttf");
+  }
+  
+  @font-face {
+    font-family: "Mona Black";
+    src: url("../app/fonts/MonaSans-Black.ttf");
+  }
+  
+  @font-face {
+    font-family: "Mona ExtraBold";
+    src: url("../app/fonts/MonaSans-ExtraBold.ttf");
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(95, 68, 41, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 0 15px rgba(95, 68, 41, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(95, 68, 41, 0);
+    }
+  }
+  
+  
+  
+  
+  .pulse-button {
+    position: relative;
+    animation: pulse 1.5s infinite;
+  }
+  
