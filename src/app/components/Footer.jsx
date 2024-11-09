@@ -3,8 +3,9 @@ import SocialIcons from "./SocialIcons";
 
 const Footer = () => {
   return (
+    <div className="border-t border-gray-400">
     <footer className="py-8 mx-8 md:mx-[10%]">
-      <div className="max-w-xl  ">
+      <div className="max-w-xl">
         {/* Column 1 */}
         <div>
           <p className="text-2xl font-poppins-bold text-gray-800 mb-4">
@@ -17,11 +18,12 @@ const Footer = () => {
           <SocialIcons />
         </div>
       </div>
-      <hr className="mt-2" />
+      <hr />
       <p className="mt-8 text-gray-400 text-sm font-poppins">
         © {new Date().getFullYear()} Kapehan. All rights reserved.
       </p>
     </footer>
+    </div>
   );
 };
 

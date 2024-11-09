@@ -1,48 +1,34 @@
 "use client"; // Add this line at the top
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 // import Logo from "@/components/Logo";
 import Links from "../components/Links";
 import { pageEndpoints } from "../config/config";
 
 const Navbar = () => {
-  const [isSticky, setIsSticky] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    window.onscroll = () => {
-      if (window.scrollY !== 0 || window.pageYOffset !== 0) {
-        setIsSticky(true);
-      } else {
-        setIsSticky(false);
-      }
-    };
-
-    return () => (window.onscroll = null);
-  }, []);
-
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
   return (
-    <header
-      className={`sticky z-50 top-0 p-2 bg-[#FAF7F2] ${isSticky ? "border-b-2" : "border-b-0"}`}
-    >
+    <header className="bg-[#FAF7F2]">
       <div className="max-w-[1420px] m-auto flex justify-between items-center">
         <div className="sm:p-5">
-          {/* <p className="p-4 mr-5 font-poppins-medium text-[#4b4b4d]">Kapehan</p> */}
+          {/* <p className="text-2xl font-poppins-bold text-[#5F4429]">Kapehan</p> */}
         </div>
         <div className="sm:p-5 flex-1 flex justify-center">
           <div className="hidden md:flex space-x-4">
             <Links pageTitle={"home."} endpoint={pageEndpoints.home} />
-            <Links pageTitle={"find coffee shops."} endpoint={pageEndpoints.explore} />
+            <Links
+              pageTitle={"coffee shops."}
+              endpoint={pageEndpoints.explore}
+            />
             <Links pageTitle={"blogs."} endpoint={pageEndpoints.blogs} />
             <Links pageTitle={"about us."} endpoint={pageEndpoints.about} />
           </div>
         </div>
         <div className="sm:p-5 hidden md:block">
-          {/* Add your new link here */}
           <Links pageTitle={"contact us."} endpoint={pageEndpoints.about} />
         </div>
         <div className="md:hidden p-5">
@@ -77,11 +63,32 @@ const Navbar = () => {
           >
             &times;
           </button>
-          <Links pageTitle={"home."} endpoint={pageEndpoints.home} />
-          <Links pageTitle={"find coffee shops."} endpoint={pageEndpoints.explore} />
-          <Links pageTitle={"blogs."} endpoint={pageEndpoints.blogs} />
-          <Links pageTitle={"about us."} endpoint={pageEndpoints.about} />
-          <Links pageTitle={"contact us."} endpoint={pageEndpoints.about} />
+          {/* Each Link has onClick={toggleMenu} to close the menu on click */}
+          <Links
+            pageTitle={"home."}
+            endpoint={pageEndpoints.home}
+            onClick={toggleMenu}
+          />
+          <Links
+            pageTitle={"coffee shops."}
+            endpoint={pageEndpoints.explore}
+            onClick={toggleMenu}
+          />
+          <Links
+            pageTitle={"blogs."}
+            endpoint={pageEndpoints.blogs}
+            onClick={toggleMenu}
+          />
+          <Links
+            pageTitle={"about us."}
+            endpoint={pageEndpoints.about}
+            onClick={toggleMenu}
+          />
+          <Links
+            pageTitle={"contact us."}
+            endpoint={pageEndpoints.about}
+            onClick={toggleMenu}
+          />
         </div>
       </div>
     </header>

@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
 
-const Links = ({ pageTitle, endpoint }) => {
+const Links = ({ pageTitle, endpoint, onClick  }) => {
   return (
     <Link
+    onClick={onClick}
       href={endpoint}
       className="p-4 mr-5 inline-block text-base font-poppins-medium text-[#4b4b4d] relative hover:text-black group"
     >

@@ -1,7 +1,7 @@
 export const pageEndpoints = {
     home: "/",
-    explore: "explore",
-    blogs: "blogs",
-    about: "about",
+    explore: "/explore",
+    blogs: "/blogs",
+    about: "/about",
   };
   
