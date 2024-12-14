@@ -36,20 +36,23 @@ const reviews = [
 export default function ReviewList() {
   return (
     <div className="bg-gray-100">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mx-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 ">
         {reviews.map((review, index) => (
           <div
             key={index}
-            className="bg-white border border-gray-200 p-6 rounded-lg shadow-lg transition-all transform flex flex-col justify-between"
+            className="bg-white border border-gray-200 p-4 sm:p-6 rounded-lg shadow-lg transition-all transform flex flex-col justify-between"
           >
             {/* Comment */}
-            <p className="text-base text-gray-400 italic leading-relaxed font-poppins-bold pt-5 text-center">
+            <p
+              className="text-sm sm:text-base text-gray-400 italic leading-relaxed font-poppins-bold pt-3 sm:pt-5 text-center line-clamp-3"
+              title={review.comment}
+            >
               &quot;{review.comment}&quot;
             </p>
 
             {/* Name, Date, Rating */}
-            <div className="flex flex-col items-center mt-5">
-              <p className="text-sm font-poppins text-gray-900">
+            <div className="flex flex-col items-center mt-3 sm:mt-5">
+              <p className="text-xs sm:text-sm font-poppins text-gray-900">
                 {review.name}
               </p>
               <div className="flex items-center space-x-1 mt-2">
@@ -63,9 +66,7 @@ export default function ReviewList() {
                 ))}
               </div>
               {review.date && (
-                <p className="text-xs font-poppins text-gray-500 mt-2">
-                  {review.date}
-                </p>
+                <p className="text-xs text-gray-500 mt-2">{review.date}</p>
               )}
             </div>
           </div>

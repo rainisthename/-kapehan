@@ -3,13 +3,20 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image"; // Optional if you want to use Next.js Image component
 import coffeeShop from "../../../../public/images/coffeeshop.jpg";
-import { FaWifi, FaParking, FaSwimmingPool } from "react-icons/fa";
+import {
+  FaWifi,
+  FaParking,
+  FaSwimmingPool,
+  FaFacebook,
+  FaInstagramSquare,
+} from "react-icons/fa";
 import { SiSocketdotio } from "react-icons/si";
 import { MdOutlineBathroom } from "react-icons/md";
 
 import ReviewList from "../../components/Reviews";
 import { FaClock } from "react-icons/fa6";
 import MapComponent from "../../components/GoogleMaps";
+import Modal from "../../components/RatingModal";
 const drinks = [
   {
     name: "Spanish Latte",
@@ -65,8 +72,7 @@ const amenities = [
   { label: "WiFi Connection", icon: FaWifi },
   { label: "Parking", icon: FaParking },
   { label: "Electric Socket", icon: SiSocketdotio },
-  { label: "Bathroom", icon: MdOutlineBathroom  },
-
+  { label: "Bathroom", icon: MdOutlineBathroom },
 ];
 
 const desserts = [
@@ -79,6 +85,10 @@ const desserts = [
 ];
 
 export default function CoffeeShopDetail() {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleCloseModal = () => setShowModal(false);
+
   const params = useParams();
   const { name } = params; // Extracts the 'name' part from the URL
 
@@ -146,11 +156,25 @@ export default function CoffeeShopDetail() {
           {/* Placeholder for additional content */}
         </div>
       </div>
-      <div className="mx-[5%] mt-[20%] sm:mt-[5%] text-center">
+      <div className="mx-[5%] mt-[20%] sm:mt-[5%] text-center pb-5">
         <div className="flex flex-col lg:flex-row items-start justify-between">
           {/* Amenities Section */}
           <div className="lg:w-1/2 w-full flex flex-col items-start lg:pr-8 mb-8 lg:mb-0">
             {/* First Amenities Section */}
+            <div className="mb-6 w-full">
+              <p className="text-4xl md:text-3xl lg:text-2xl font-poppins-bold text-gray-600 mb-4 text-left">
+                About
+              </p>
+              <div className="flex flex-wrap justify-start gap-4">
+                <p className="font-poppins text-gray-600 text-left text-base">
+                  Green Beans Café is your go-to spot for fresh coffee and chill
+                  vibes. Enjoy handpicked beans brewed into your favorite
+                  drinks, from creamy lattes to bold espressos. Pair your cup
+                  with tasty pastries or snacks. It’s the perfect hangout for
+                  relaxing, working, or catching up. Sip, savor, and stay!
+                </p>
+              </div>
+            </div>
             <div className="mb-6 w-full">
               <p className="text-4xl md:text-3xl lg:text-2xl font-poppins-bold text-gray-600 mb-4 text-left">
                 Amenities
@@ -187,6 +211,22 @@ export default function CoffeeShopDetail() {
                 </div>
               </div>
             </div>
+
+            <div className="w-full mt-5">
+              <p className="text-4xl md:text-3xl lg:text-2xl font-poppins-bold text-gray-600 mb-4 text-left">
+                Social Media
+              </p>
+              <div className="flex flex-wrap justify-start gap-4">
+                <div className="flex items-center space-x-2 font-poppins bg-gray-200 text-black py-2 px-4 rounded-full">
+                  <FaFacebook size={18} />
+                  <span className="text-xs">Facebook</span>
+                </div>
+                <div className="flex items-center space-x-2 font-poppins bg-gray-200 text-black py-2 px-4 rounded-full">
+                  <FaInstagramSquare size={18} />
+                  <span className="text-xs">Instagram</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Map Section */}
@@ -195,75 +235,24 @@ export default function CoffeeShopDetail() {
           </div>
         </div>
 
-        <div className="mx-[5%] mt-[5%]">
-          {/* Main Title */}
-          <p className="text-4xl md:text-3xl lg:text-4xl font-mona-black text-gray-600 mb-4 text-center">
-            {activeTab === "coffee" ? "Coffee Menu" : "Dessert Menu"}
+        <div className="mt-[5%] pb-5">
+          <p className="text-4xl md:text-3xl lg:text-3xl font-inter-black text-gray-600 mb-4 text-left flex items-center">
+            Recommendations
+            <span className="ml-2 text-lg md:text-base lg:text-base font-inter text-gray-500">
+              (10)
+            </span>
           </p>
-
-          {/* Tab Navigation below the Title */}
-          <div className="flex justify-center space-x-4 mb-8">
-            <button
-              className={`px-4 py-2 font-bold rounded-full transition-all duration-300 ${
-                activeTab === "coffee"
-                  ? "bg-[#5f4429] text-white shadow-lg transform hover:scale-110"
-                  : "bg-gray-200 text-gray-600 transform hover:scale-105"
-              }`}
-              onClick={() => setActiveTab("coffee")}
-            >
-              Coffee
-            </button>
-            <button
-              className={`px-4 py-2 font-bold rounded-full transition-all duration-300 ${
-                activeTab === "dessert"
-                  ? "bg-[#5f4429] text-white shadow-lg transform hover:scale-110"
-                  : "bg-gray-200 text-gray-600 transform hover:scale-105"
-              }`}
-              onClick={() => setActiveTab("dessert")}
-            >
-              Dessert
-            </button>
-          </div>
-
-          {/* Content Grid */}
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5 gap-6 max-w-96 sm:max-w-none m-auto transition-opacity duration-500"
-            style={{ opacity: activeTab === "coffee" ? 1 : 0.8 }}
-          >
-            {(activeTab === "coffee" ? drinks : desserts).map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center bg-white shadow-lg rounded-lg mb-5 pb-5 p-6"
-              >
-                <p className="text-[#5f4429] font-poppins-bold text-2xl mb-1 text-center transition-colors duration-300">
-                  {item.name}
-                </p>
-                <p className="text-[#4b4b4d] font-poppins text-xs text-center italic mb-2">
-                  {item.description}
-                </p>
-                <div className="mt-3 space-y-1">
-                  {item.sizes.map((size, sizeIndex) => (
-                    <p
-                      key={sizeIndex}
-                      className="text-[#4b4b4d] font-poppins text-sm text-center"
-                    >
-                      {size.size}:{" "}
-                      <span className="font-poppins-bold text-[#5f4429]">
-                        ₱{size.price}
-                      </span>
-                    </p>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="text-center pt-[5%] pb-[5%]">
-            <p className="text-4xl md:text-3xl lg:text-4xl font-mona-black text-gray-600 mb-4">
-              Shop Reviews
-            </p>
-            <ReviewList />
-          </div>
+          <ReviewList />
         </div>
+        <button
+          onClick={() => setShowModal(true)} // Show modal when button is clicked
+          className="px-8 py-3 md:px-10 md:py-4 bg-white text-gray-800 rounded-full font-poppins cursor-pointer border border-gray-800 shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all duration-300"
+        >
+          Write a review
+        </button>
+
+        {/* Modal component with show and close handlers */}
+        <Modal show={showModal} onClose={handleCloseModal} />
       </div>
     </div>
   );

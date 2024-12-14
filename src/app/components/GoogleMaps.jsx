@@ -5,6 +5,7 @@ import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 const MapComponent = ({ lat, lng }) => {
   const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyBBk1ScAHRBt96t8aCT2h-hx3lKbiFUwhw", // Replace with your Google Maps API Key
   });
 
   const center = {
