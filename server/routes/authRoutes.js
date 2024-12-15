@@ -1,15 +1,14 @@
-import { registerUser } from '../controller/authController.js';
-import authenticate from '../middleware/authenticate.js';  // Your authentication middleware
+import { loginUser, registerUser, logoutUser } from '../controller/authController.js';
 
 async function authRoutes(fastify, options) {
-  // Registration route
+  // Registration route (no authentication required)
   fastify.post('/api/v1/register', registerUser);
+  
+  // Login route (no authentication required)
+  fastify.post('/api/v1/login', loginUser);
 
-  // Login route (this will return a JWT token)
-  // fastify.post('/register', { preHandler: authenticate }, async (request, reply) => {
-  //   // Handle the creation logic
-  //   return { message: 'Resource created' };
-  // });
+  fastify.post('/api/v1/logout', logoutUser);  // Add logout route
+
 }
 
 export default authRoutes;

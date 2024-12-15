@@ -1,14 +1,25 @@
-async function authenticate(request, reply) {
-  try {
-    await request.jwtVerify();  // Automatically verifies the JWT using fastify-jwt
+// verifyJWT.js
 
-    // Optionally, check the role or permissions if needed
-    if (request.user.role !== "admin") {
-      return reply.code(403).send({ message: "Forbidden" });  // Using reply.code() correctly here
+export const verifyJWT = async (request, reply) => {
+  try {
+    // Try to get the token from the request
+    const token = request.cookies.jwt || request.headers.authorization?.split(" ")[1];
+    console.log("token", token)
+    if (!token) {
+      return reply.code(401).send({ message: "Token is required" });
+    }
+
+    // Verify and decode the token using the Fastify JWT plugin
+    try {
+      const decoded = await request.server.jwt.verify(token);
+      request.user = decoded; // Attach the decoded user info to the request object
+      return true;
+    } catch (err) {
+      console.error("JWT verification failed:", err);
+      return reply.code(401).send({ message: "Invalid or expired token" });
     }
   } catch (err) {
-    return reply.code(401).send({ message: "Unauthorized" });  // Using reply.code() correctly here
+    console.error("Error verifying token:", err);
+    return reply.code(500).send({ message: "Internal Server Error" });
   }
-}
-
-export default authenticate;
+};

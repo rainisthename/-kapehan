@@ -1,4 +1,4 @@
-async function dataRoutes(fastify, db) {
+async function healthCheck(fastify, db) {
   fastify.get("/api/v1/health", async (request, reply) => {
     try {
       // Respond with a simple OK status for health check
@@ -9,4 +9,4 @@ async function dataRoutes(fastify, db) {
   });
 }
 
-export default dataRoutes;
+export default healthCheck;

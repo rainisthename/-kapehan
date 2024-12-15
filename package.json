@@ -9,13 +9,17 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@fastify/csrf": "^7.1.0",
+    "@fastify/helmet": "^13.0.0",
     "@fastify/jwt": "^9.0.2",
     "@fastify/nextjs": "^11.0.0",
+    "@fastify/rate-limit": "^10.2.1",
     "@react-google-maps/api": "^2.20.3",
     "bcrypt": "^5.1.1",
     "chart.js": "^4.4.7",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.0",
+    "fastify-cookie": "^5.7.0",
     "fastify-nextjs": "^7.3.0",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.0",
