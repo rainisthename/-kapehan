@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import User from "../lib/userModel.js"; // Assuming User model is imported correctly
-
+import { verifyJWT, decodeJWT } from "../middleware/Authenticate.js";
 export const loginUser = async (request, reply) => {
   try {
     const { username, password } = request.body;
@@ -11,44 +11,37 @@ export const loginUser = async (request, reply) => {
         .send({ message: "Username and password are required" });
     }
 
-    // Find user by username
     const user = await User.findOne({ username });
     if (!user) {
-      return reply.code(404).send({ message: "User not found" });
+      return reply.code(401).send({ message: "Invalid username or password" });
     }
 
-    // Validate password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return reply.code(401).send({ message: "Invalid credentials" });
+      return reply.code(401).send({ message: "Invalid username or password" });
     }
 
-    // Generate access token (expires in 20 minutes)
     const accessToken = request.server.jwt.sign(
-      {
-        username: user.username,
-        role: user.role,
-      },
-      { expiresIn: "20m" } // Access token expires in 20 minutes
+      { userId: user._id.toString(), role: user.role }, // Store userId as a string
+      { expiresIn: "1d" }
     );
 
-    // Generate refresh token (expires in 20 minutes)
     const refreshToken = request.server.jwt.sign(
       { username: user.username },
-      { expiresIn: "20m" } // Refresh token also expires in 20 minutes
+      { expiresIn: "7d" }
     );
 
-    // Set the refresh token in a cookie (expires in 20 minutes)
-    reply.setCookie("jwt", refreshToken, {
-      httpsOnly: true, // Makes the cookie accessible only by the web server
-      sameSite: "Lax", // You can adjust this as per your requirements
-      maxAge: 20 * 60 * 1000, // Cookie expires in 20 minutes (in milliseconds)
+    reply.setCookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "None", // SameSite policy (adjust as needed)
+      path: "/", // Make the cookie available to all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: true,
     });
 
-    // Send the access token back in the response body
     return reply.send({ token: accessToken });
   } catch (err) {
-    console.error("Login error:", err);
+    console.log("Login error:", err);
     return reply.code(500).send({ message: "Internal Server Error" });
   }
 };
@@ -81,7 +74,7 @@ export const registerUser = async (request, reply) => {
     // Respond with a success message (don't return the password)
     reply.code(201).send({ message: "User created successfully" });
   } catch (err) {
-    console.error("Error creating user:", err);
+    console.log("Error creating user:", err);
     reply.code(500).send({ message: "Server error" });
   }
 };
@@ -91,22 +84,99 @@ export const registerUser = async (request, reply) => {
 // logoutController.js
 export const logoutUser = async (request, reply) => {
   try {
-    // Check if the JWT cookie exists
-    if (request.cookies && request.cookies.jwt) {
+    // Check if the JWT and refreshToken cookies exist
+    if (
+      request.cookies &&
+      (request.cookies.loginToken || request.cookies.refreshToken)
+    ) {
       // Clear the JWT cookie on the client side
       reply.clearCookie("jwt", {
-        httpsOnly: true, // Ensure the cookie is only accessible via HTTP (not JavaScript)
-        sameSite: "Lax", // SameSite policy (adjust as needed)
-        path: "/api/v1", // Make sure the path is consistent with where the cookie was set
+        httpOnly: true, // Ensure the cookie is only accessible via HTTP (not JavaScript)
+        sameSite: "None", // Allow cross-site cookies
+        secure: true, // Required for SameSite: None
+        path: "/", // Make sure the path is consistent with where the cookie was set
+      });
+
+      // Clear the refreshToken cookie on the client side
+      reply.clearCookie("refreshToken", {
+        httpOnly: true, // Ensure the cookie is only accessible via HTTP (not JavaScript)
+        sameSite: "None", // Allow cross-site cookies
+        secure: true, // Required for SameSite: None
+        path: "/", // Make sure the path is consistent with where the cookie was set
       });
 
       return reply.send({ message: "Logged out successfully" });
     } else {
-      // If there's no JWT cookie, send a message saying the user is not logged in
+      // If there's no JWT or refreshToken cookie, send a message saying the user is not logged in
       return reply.code(400).send({ message: "No active session found" });
     }
   } catch (err) {
-    console.error("Logout error:", err);
+    console.log("Logout error:", err);
     return reply.code(500).send({ message: "Internal Server Error" });
+  }
+};
+
+export const fetchUser = async (request, reply) => {
+  try {
+    // Extract the loginToken from the Authorization header or cookies
+    const loginToken =
+      request.headers["authorization"]?.split(" ")[1] ||
+      request.cookies?.loginToken;
+
+    if (!loginToken) {
+      return reply.status(400).send({
+        success: false,
+        message: "No token provided",
+      });
+    }
+
+    // Verify and decode the token
+    const decodedToken = decodeJWT(request.server, loginToken);
+    if (!decodedToken) {
+      console.log(
+        "Token verification failed, decodedToken is null or undefined"
+      );
+      return reply.status(401).send({
+        success: false,
+        message: "Invalid or expired token",
+      });
+    }
+    if (!decodedToken.userId) {
+      console.log("Decoded token does not contain userId:", decodedToken);
+      return reply.status(401).send({
+        success: false,
+        message: "Invalid token structure: Missing userId",
+      });
+    }
+
+    console.log("Decoded userId:", decodedToken.userId); // Log the userId from the decoded token
+
+    // Find the user based on the userId from the decoded token
+    const user = await User.findById(decodedToken.userId);
+
+    if (!user) {
+      console.log("User not found with ID:", decodedToken.userId);
+      return reply.status(404).send({
+        success: false,
+        message: "User not found",
+        id: decodedToken.userId,
+      });
+    }
+
+    // Send the user details in the response
+    console.log("User found:", user); // Log the user details for debugging
+    return reply.send({
+      success: true,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.log("Error occurred:", error); // Log the full error message
+    return reply.status(500).send({
+      success: false,
+      message: "An error occurred",
+      error: error.message,
+    });
   }
 };

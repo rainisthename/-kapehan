@@ -1,13 +1,30 @@
-import AppBar from "../../admin-components/Appbar";
-import StatsCards from "../../admin-components/StatCards";
-import TopPerformer from "../../admin-components/TopPerformers";
+"use client"
+import AppBar from "../components/Appbar";
+import StatsCards from "../components/StatCards";
+import TopPerformer from "../components/TopPerformers";
+
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { getAuthToken, isTokenExpired } from '../../../utils/authUtil'; // Import functions
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = getAuthToken();  // Using the updated client-side method
+    console.log('Retrieved token:', token); // Log the token to verify
+
+    if (!token || isTokenExpired(token)) {
+      // If no token exists or the token is expired, redirect to login
+      console.log('No valid token, redirecting to /login');
+      // router.push("/login");
+    }
+  }, [router]);
+
   return (
     <div className="flex min-h-screen">
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* AppBar stays on top */}
 
         {/* Main Content Layout */}
         <main className="p-6 flex-1 overflow-auto">

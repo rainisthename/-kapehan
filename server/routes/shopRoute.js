@@ -7,36 +7,85 @@ import {
   deleteShop,
 } from "../controller/shopController.js";
 
+// Helper function to handle pagination
+const handlePagination = (page, limit) => {
+  const skip = (page - 1) * limit;
+  return { skip, limit };
+};
+
 async function shopRoutes(fastify, options) {
   // Route to create a shop (with JWT authentication)
-  fastify.post("/api/v1/shops/create", { preHandler: verifyJWT }, async (request, reply) => {
-    try {
-      await createShop(request, reply);
-    } catch (error) {
-      console.error(error);
-      reply.status(500).send({ error: "Failed to create shop" });
+  fastify.post(
+    "/api/v1/shops/create",
+    { preHandler: verifyJWT },
+    async (request, reply) => {
+      try {
+        const shop = await createShop(request, reply);
+        reply.send({
+          isSuccess: true,
+          message: "Shop created successfully",
+          shop,
+        });
+      } catch (error) {
+        console.error(error);
+        reply.status(500).send({
+          isSuccess: false,
+          error: "Failed to create shop",
+        });
+      }
     }
-  });
+  );
 
   // Route to update a shop (with JWT authentication)
-  fastify.put("/api/v1/shops/update/:shopId", { preHandler: verifyJWT }, async (request, reply) => {
-    try {
-      await updateShop(request, reply);
-    } catch (error) {
-      console.error(error);
-      reply.status(500).send({ error: "Failed to update shop" });
+  fastify.put(
+    "/api/v1/shops/update/:shopId",
+    { preHandler: verifyJWT },
+    async (request, reply) => {
+      try {
+        const shop = await updateShop(request, reply);
+        reply.send({
+          isSuccess: true,
+          message: "Shop updated successfully",
+          shop,
+        });
+      } catch (error) {
+        console.error(error);
+        reply.status(500).send({
+          isSuccess: false,
+          error: "Failed to update shop",
+        });
+      }
     }
-  });
+  );
 
   // Route to get all shops (with pagination)
   fastify.get("/api/v1/shops", async (request, reply) => {
     try {
       const { page = 1, limit = 10 } = request.query; // Pagination query params
-      const shops = await getAllShops(page, limit);
-      reply.send(shops);
+      const { skip, limit: pageLimit } = handlePagination(
+        Number(page),
+        Number(limit)
+      );
+
+      const { shops, totalShops } = await getAllShops(skip, pageLimit);
+      const totalPages = Math.ceil(totalShops / pageLimit); // Calculate total pages
+
+      reply.send({
+        isSuccess: true,
+        shops,
+        pagination: {
+          totalShops,
+          totalPages,
+          currentPage: page,
+          limit: pageLimit,
+        },
+      });
     } catch (error) {
       console.error(error);
-      reply.status(500).send({ error: "Failed to retrieve shops" });
+      reply.status(500).send({
+        isSuccess: false,
+        error: "Failed to retrieve shops",
+      });
     }
   });
 
@@ -45,26 +94,45 @@ async function shopRoutes(fastify, options) {
     try {
       const shop = await getShopById(request.params.shopId);
       if (!shop) {
-        reply.status(404).send({ error: "Shop not found" });
+        reply.status(404).send({
+          isSuccess: false,
+          error: "Shop not found",
+        });
         return;
       }
-      reply.send(shop);
+      reply.send({
+        isSuccess: true,
+        shop,
+      });
     } catch (error) {
       console.error(error);
-      reply.status(500).send({ error: "Failed to retrieve shop" });
+      reply.status(500).send({
+        isSuccess: false,
+        error: "Failed to retrieve shop",
+      });
     }
   });
 
   // Route to delete a shop (with JWT authentication)
-  fastify.delete("/api/v1/shops/delete/:shopId", { preHandler: verifyJWT }, async (request, reply) => {
-    try {
-      await deleteShop(request.params.shopId);
-      reply.status(200).send({ message: "Shop deleted successfully" });
-    } catch (error) {
-      console.error(error);
-      reply.status(500).send({ error: "Failed to delete shop" });
+  fastify.delete(
+    "/api/v1/shops/delete/:shopId",
+    { preHandler: verifyJWT },
+    async (request, reply) => {
+      try {
+        await deleteShop(request.params.shopId);
+        reply.send({
+          isSuccess: true,
+          message: "Shop deleted successfully",
+        });
+      } catch (error) {
+        console.error(error);
+        reply.status(500).send({
+          isSuccess: false,
+          error: "Failed to delete shop",
+        });
+      }
     }
-  });
+  );
 }
 
 export default shopRoutes;

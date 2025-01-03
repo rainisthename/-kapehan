@@ -1,5 +1,5 @@
 import React from 'react'
-import TableComponent from '../../../admin-components/TableComponent'
+import TableComponent from '../../components/TableComponent'
 
 const page = () => {
   return (

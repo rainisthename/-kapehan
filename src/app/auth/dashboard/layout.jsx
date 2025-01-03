@@ -1,5 +1,5 @@
-import Sidebar from "../../admin-components/Sidebar";
-import AppBar from "../../admin-components/Appbar";
+import Sidebar from "../components/Sidebar";
+import AppBar from "../components/Appbar";
 
 export default function DashboardLayout({ children }) {
   return (

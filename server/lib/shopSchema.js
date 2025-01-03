@@ -16,6 +16,11 @@ const shopSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
+    city: {
+      type: String,
+      required: true,
+      minlength: 3, // Ensure shop name is at least 3 characters long
+    },
     ratings: {
       type: Number,
       min: 0, // Ratings cannot be negative
