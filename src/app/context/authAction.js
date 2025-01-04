@@ -27,7 +27,7 @@ export const loginUser = async (dispatch, credentials, router) => {
     dispatch({ type: "LOGIN_SUCCESS", payload: { user, token } });
 
     // Now that login is successful, call fetchUser to load the full user details
-    fetchUser(dispatch, token); // Fetch the user details using the token
+    fetchUser(dispatch); // Fetch the user details using the token
 
     // Redirect to the dashboard after successful login
     router.push("/auth/dashboard");
@@ -76,30 +76,33 @@ export const logoutUser = async (dispatch) => {
 };
 
 
-export const fetchUser = async (dispatch, token) => {
+export const fetchUser = async (dispatch) => {
   dispatch({ type: "USER_FETCH_REQUEST" });
 
   try {
-    // If no token is passed, log an error and return
+    // Fetch the token directly from cookies
+    const token = Cookies.get("loginToken");
+
     if (!token) {
-      console.log("No token found. User is not authenticated.");
+      console.log("No token found");
+      // If no token is found, dispatch failure and exit early
+      dispatch({ type: "USER_FETCH_FAILURE", error: "No token found" });
       return;
     }
 
-    // Call the fetchAuthTokenAndUser function to get user data
-    const user = await fetchAuthTokenAndUser(token);
+    // Set the token in the Authorization header for the API request
+    apiService.defaults.headers["Authorization"] = `Bearer ${token}`;
 
-    // Dispatch success action with user data
-    dispatch({ type: "USER_FETCH_SUCCESS", payload: user });
+    // Fetch the user data from the /user endpoint
+    const response = await apiService.post("/user");
 
+    // Dispatch success action with the fetched user data
+    dispatch({ type: "USER_FETCH_SUCCESS", payload: response.data });
   } catch (error) {
-    console.error("Fetch User Error:", error);
+    console.error("Error fetching user:", error);
 
-    // Dispatch failure action with error details
-    const errorMessage = error.message;
+    // Dispatch failure action if there's an error fetching the user
+    const errorMessage = error.response ? error.response.data.message : error.message;
     dispatch({ type: "USER_FETCH_FAILURE", error: errorMessage });
-
-    // Just log the error instead of redirecting
-    console.log("Failed to fetch user data:", errorMessage);
   }
 };

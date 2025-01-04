@@ -32,7 +32,6 @@ export const getAuthToken = () => {
   try {
     const token = Cookies.get('loginToken');
     if (token) {
-      console.log('JWT token retrieved from cookies');
     } else {
       console.warn('No JWT token found in cookies');
     }

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { SkeletonLoader } from "./SkeletonLoader";
 import { useState } from "react";
 import Image from "next/image";
@@ -25,6 +25,8 @@ export default function CoffeeCard({ card }) {
             fill // Use fill instead of layout="responsive"
             onLoad={() => setIsLoaded(true)} // Update state on load
             onError={() => setIsLoaded(true)} // Also update state on error
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Define sizes for different viewport widths
+            priority // Mark the image as priority for LCP
           />
           {/* Rating at the top right */}
           <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">

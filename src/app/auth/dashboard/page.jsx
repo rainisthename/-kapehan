@@ -12,7 +12,6 @@ export default function Home() {
 
   useEffect(() => {
     const token = getAuthToken();  // Using the updated client-side method
-    console.log('Retrieved token:', token); // Log the token to verify
 
     if (!token || isTokenExpired(token)) {
       // If no token exists or the token is expired, redirect to login

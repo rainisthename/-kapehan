@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "devs": "next dev --turbopack",
-    "dev": "nodemon server/server.js",
+    "dev": "next dev --turbopack",
+    "server": "nodemon server/server.js",
     "build": "next build",
     "start": "node server.js"
   },

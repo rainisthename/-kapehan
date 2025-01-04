@@ -10,7 +10,6 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = getAuthToken(); // Get token from cookies
-    console.log("Token being sent:", token); // Log token for verification
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`; // Attach token to Authorization header
     }

@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
         logoutUser(dispatch); // Logout if token is expired
       } else {
         // Token is valid, fetch user data
-        fetchUser(dispatch, token);
+        fetchUser(dispatch); // Fetch the user only once here
       }
     } else {
       console.log("Token not found");

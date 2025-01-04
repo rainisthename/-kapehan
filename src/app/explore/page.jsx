@@ -3,8 +3,33 @@ import FilterBar from "../components/FilterBar";
 import CoffeeCard from "../components/CoffeeCard";
 import coffeeShop from "../../../public/images/coffeeshop.jpg";
 import Link from "next/link"; // Import Link
-
+import {getShops} from '../data/shopsAPiSlice'
+import {useState, useEffect} from 'react'
 export default function Explore() {
+
+  const [shops, setShops] = useState([]);
+  const [error, setError] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false); // Flag to track loading state
+
+  useEffect(() => {
+    const fetchShops = async () => {
+      if (isLoaded) return; // Prevent re-fetch if already loaded
+
+      const result = await getShops();
+
+      if (result.error) {
+        setError(result.error); // Handle error
+      } else {
+        setShops(result); // Set shops data
+      }
+
+      setIsLoaded(true); // Mark as loaded
+    };
+
+    fetchShops();
+  }, [isLoaded]); // Add isLoaded as dependency
+
+
   const cards = [
     {
       id: 1,
