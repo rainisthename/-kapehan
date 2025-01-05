@@ -164,7 +164,6 @@ export const fetchUser = async (request, reply) => {
     }
 
     // Send the user details in the response
-    console.log("User found:", user); // Log the user details for debugging
     return reply.send({
       success: true,
       username: user.username,

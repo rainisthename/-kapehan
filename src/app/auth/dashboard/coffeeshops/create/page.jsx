@@ -1,57 +1,99 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { PuffLoader } from "react-spinners";
-import { FaTrash } from "react-icons/fa";
-import AlertModal from "../../../components/Alert"; // Corrected import for AlertModal
+import React, { useState } from "react";
+import AmenitySelection from "../../../components/AmenitySelector";
+import AlertModal from "../../../components/Alert";
+import ImageUpload from "../../../components/ImageUpload";
+import StoreTime from "../../../components/StoreTime";
+import { createShop } from "../../../../data/shopsAPiSlice";
+import { PuffLoader } from "react-spinners"; // If you are using this loader for the loading state
 
 const DashboardForm = () => {
-  const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
     address: "",
     city: "",
     about: "",
-    facebook: "",
-    instagram: "",
-    twitter: "",
     openTime: "",
     closeTime: "",
+    shopImage: null,
+    amenities: [],
+    socialMedia: [
+      { platform: "facebook", url: "" },
+      { platform: "instagram", url: "" },
+      { platform: "twitter", url: "" },
+    ],
   });
-  const [alert, setAlert] = useState({ message: "", type: "" }); // State for alert
 
-  const availableAmenities = ["Free Wi-Fi", "Pet-friendly", "Outdoor Seating"];
-  const cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"];
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [alert, setAlert] = useState({ message: "", type: "" });
+
+  const availableAmenities = ["Wi-Fi", "Pet-friendly", "Outdoor Seating", "Electric Socket"];
+  const cities = [
+    "Manila", 
+    "Caloocan", 
+    "Las Piñas", 
+    "Makati", 
+    "Malabon", 
+    "Mandaluyong", 
+    "Marikina", 
+    "Muntinlupa", 
+    "Navotas", 
+    "Parañaque", 
+    "Pasay", 
+    "Pasig", 
+    "Quezon City", 
+    "San Juan", 
+    "Taguig", 
+    "Valenzuela" 
+  ]
 
   const handleAmenityClick = (amenity) => {
-    if (!selectedAmenities.includes(amenity)) {
-      setSelectedAmenities([...selectedAmenities, amenity]);
-    }
+    const updatedAmenities = selectedAmenities.includes(amenity)
+      ? selectedAmenities
+      : [...selectedAmenities, amenity];
+    setSelectedAmenities(updatedAmenities);
+    setFormData((prevState) => ({
+      ...prevState,
+      amenities: updatedAmenities,
+    }));
   };
 
   const removeAmenity = (amenity) => {
-    setSelectedAmenities(selectedAmenities.filter((item) => item !== amenity));
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    const updatedAmenities = selectedAmenities.filter(
+      (item) => item !== amenity
+    );
+    setSelectedAmenities(updatedAmenities);
+    setFormData((prevState) => ({
+      ...prevState,
+      amenities: updatedAmenities,
+    }));
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    // Only handle other form data (not social media here)
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
     setErrors({ ...errors, [name]: "" });
+  };
+
+  const handleSocialMediaChange = (e, index) => {
+    const { value } = e.target; // We no longer need to extract name because it will always be 'url'
+
+    const updatedSocialMedia = [...formData.socialMedia];
+    updatedSocialMedia[index] = { ...updatedSocialMedia[index], url: value }; // Update the URL only
+
+    setFormData((prevState) => ({
+      ...prevState,
+      socialMedia: updatedSocialMedia, // Update the socialMedia field in the form data
+    }));
   };
 
   const validateForm = () => {
@@ -66,41 +108,67 @@ const DashboardForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      address: "",
+      city: "",
+      about: "",
+      shopImage: null,
+      openTime: "",
+      closeTime: "",
+      amenities: [],
+      socialMedia: [
+        { platform: "facebook", url: "" },
+        { platform: "instagram", url: "" },
+        { platform: "twitter", url: "" },
+      ],
+    });
+    setSelectedAmenities([]);
+    setImagePreview(null);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     setLoading(true);
+  
+    const storeTime = `${formData.openTime} AM - ${formData.closeTime} PM`;
+  
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append("name", formData.name);
+    formDataToSubmit.append("address", formData.address);
+    formDataToSubmit.append("city", formData.city);
+    formDataToSubmit.append("about", formData.about);
+    formDataToSubmit.append("storeTime", storeTime);
+    formDataToSubmit.append("shopImage", formData.shopImage);
+  
+    // Serialize arrays and objects
+    formDataToSubmit.append("amenities", JSON.stringify(formData.amenities));
+    formDataToSubmit.append("socialMedia", JSON.stringify(formData.socialMedia));
+  
+    // Debugging: Check the data being sent
+    console.log([...formDataToSubmit.entries()]);
+    console.log("FormData:", Object.fromEntries(formDataToSubmit.entries()));
 
-    // Simulate API request
-    setTimeout(() => {
+    try {
+      await createShop(formDataToSubmit); // Ensure your backend endpoint parses JSON
       setLoading(false);
-      setFormData({
-        name: "",
-        address: "",
-        city: "",
-        about: "",
-        facebook: "",
-        instagram: "",
-        twitter: "",
-        openTime: "",
-        closeTime: "",
-      });
-      setSelectedAmenities([]);
-      setImagePreview(null);
-
-      // Show success alert
+      resetForm();
       setAlert({
         message: "Store created successfully!",
         type: "success",
       });
-
-      // Hide the alert after 3 seconds
-      setTimeout(() => {
-        setAlert({ message: "", type: "" });
-      }, 3000);
-    }, 2000);
+      setTimeout(() => setAlert({ message: "", type: "" }), 3000);
+    } catch (error) {
+      setLoading(false);
+      setAlert({
+        message: "Error creating store. Please try again.",
+        type: "error",
+      });
+    }
   };
-
+  
   return (
     <div className="font-poppins p-6 relative">
       {loading && (
@@ -109,8 +177,14 @@ const DashboardForm = () => {
         </div>
       )}
 
-      {/* Alert Modal */}
-      {alert.message && <AlertModal message={alert.message} type={alert.type} onClose={() => setAlert({ message: "", type: "" })} />}
+      {alert.message && (
+        <AlertModal
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ message: "", type: "" })}
+        />
+      )}
+
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div>
           <label className="block text-gray-700 font-medium mb-2">Name</label>
@@ -120,23 +194,33 @@ const DashboardForm = () => {
             value={formData.name}
             onChange={handleChange}
             placeholder="Enter store name"
-            className={`w-full px-4 py-3 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
+            className={`w-full px-4 py-3 border ${
+              errors.name ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
           />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Address</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Address
+            </label>
             <input
               type="text"
               name="address"
               value={formData.address}
               onChange={handleChange}
               placeholder="Enter store address"
-              className={`w-full px-4 py-3 border ${errors.address ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
+              className={`w-full px-4 py-3 border ${
+                errors.address ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
             />
-            {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+            {errors.address && (
+              <p className="text-red-500 text-sm mt-1">{errors.address}</p>
+            )}
           </div>
           <div>
             <label className="block text-gray-700 font-medium mb-2">City</label>
@@ -144,7 +228,9 @@ const DashboardForm = () => {
               name="city"
               value={formData.city}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border ${errors.city ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
+              className={`w-full px-4 py-3 border ${
+                errors.city ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
             >
               <option value="" disabled>
                 Select city
@@ -155,7 +241,9 @@ const DashboardForm = () => {
                 </option>
               ))}
             </select>
-            {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+            {errors.city && (
+              <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+            )}
           </div>
         </div>
 
@@ -167,62 +255,59 @@ const DashboardForm = () => {
             onChange={handleChange}
             rows="4"
             placeholder="Tell us about the store"
-            className={`w-full px-4 py-3 border ${errors.about ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
+            className={`w-full px-4 py-3 border ${
+              errors.about ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
           ></textarea>
-          {errors.about && <p className="text-red-500 text-sm mt-1">{errors.about}</p>}
+          {errors.about && (
+            <p className="text-red-500 text-sm mt-1">{errors.about}</p>
+          )}
         </div>
 
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Store Time</label>
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="time"
-              name="openTime"
-              value={formData.openTime}
-              onChange={handleChange}
-              className={`w-full px-4 py-3 border ${errors.openTime ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
-            />
-            <input
-              type="time"
-              name="closeTime"
-              value={formData.closeTime}
-              onChange={handleChange}
-              className={`w-full px-4 py-3 border ${errors.closeTime ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300`}
-            />
-          </div>
-          {errors.openTime && <p className="text-red-500 text-sm mt-1">{errors.openTime}</p>}
-          {errors.closeTime && <p className="text-red-500 text-sm mt-1">{errors.closeTime}</p>}
-        </div>
-        
-        {/* Social Media and Submit Button */}
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Social Media</label>
-          <div className="space-y-3">
-            <input
-              type="url"
-              placeholder="Facebook URL"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
-            />
-            <input
-              type="url"
-              placeholder="Instagram URL"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
-            />
-            <input
-              type="url"
-              placeholder="Twitter URL"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
-            />
-          </div>
-        </div>
+        <AmenitySelection
+          availableAmenities={availableAmenities}
+          selectedAmenities={selectedAmenities}
+          onSelectAmenity={handleAmenityClick} // Ensure this prop is passed correctly
+          onRemoveAmenity={removeAmenity} // Ensure this prop is passed correctly
+        />
 
-        <div>
+        <StoreTime
+          formData={formData}
+          handleChange={handleChange}
+          errors={errors}
+        />
+
+        <label className="block text-gray-700 font-medium mb-2">
+          Social Media Links
+        </label>
+        {formData.socialMedia.map((item, index) => (
+          <div key={index}>
+            <input
+              type="text"
+              name="url" // Use "url" as the name so we always update the correct field
+              value={item.url || ""} // Make sure we're displaying the URL
+              onChange={(e) => handleSocialMediaChange(e, index)} // Pass the index for updating the correct entry
+              placeholder={`${
+                item.platform.charAt(0).toUpperCase() + item.platform.slice(1)
+              } URL`}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 mb-2"
+            />
+          </div>
+        ))}
+
+        <ImageUpload
+          setFormData={setFormData}
+          formData={formData}
+          imagePreview={imagePreview}
+          setImagePreview={setImagePreview}
+        />
+
+        <div className="flex justify-center">
           <button
             type="submit"
-            className="w-full px-6 py-3 text-white bg-gray-600 rounded-lg shadow-md hover:bg-gray-500 transition-all duration-200"
-            disabled={loading}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            {loading ? "Loading..." : "Submit"}
+            Submit
           </button>
         </div>
       </form>

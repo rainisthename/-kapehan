@@ -8,6 +8,8 @@ import Head from "next/head"; // Import Head
 import Link from "next/link"; // Import Link
 
 const CoffeeCard = ({ card }) => {
+
+  const imageUrl = "https://storage.googleapis.com/kapehan-production.firebasestorage.app/shops/maikee.jpg?GoogleAccessId=firebase-adminsdk-x5nd9%40kapehan-production.iam.gserviceaccount.com&Expires=16446988800&Signature=HsRH45%2F4rvW5UUyrAzkIh%2BUSVqNi5yBkpX1KzFa%2F%2FC9URH7YuGmabjoGUThPC%2FNX%2F5rmpwteDLjcqqovJgazOEWz6Nl1H%2Fq1ZT14SKCfMmKMuwE7fr9eTOQfitbNi4d9ALxMSJJlmoEhYgEaPKSR8r%2FZAT6Ssx%2FP3WmsrBXrksdpB9fNcbxVg57wPs9Ktdgck2cPftAmGWyfVHDTKyHTZS%2BKgwwoEVx2RqrtWAN838d2xDo2MnvDZDPWwiuwUoisUqfvW6YxxLUG4Q3YoNKlSe0Rq9AG%2BMyZ56nrh8S8ilfyMSnV5VXmspUNHQ0wmsUjTaxvCCn5BzGc4o2ySWjYig%3D%3D"
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (

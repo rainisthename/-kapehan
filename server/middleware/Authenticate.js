@@ -3,8 +3,6 @@ export const verifyJWT = async (request, reply) => {
     // Check if headers and authorization exist
     const authorizationHeader = request.headers?.authorization;
 
-    // Log to check if the authorization header is being passed correctly
-    console.log("Authorization Header:", authorizationHeader);
 
     // Try to get the token from the cookies or from the authorization header
     const token = request.cookies?.loginToken || (authorizationHeader ? authorizationHeader.split(" ")[1] : null);

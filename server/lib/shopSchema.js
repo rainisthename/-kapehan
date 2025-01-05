@@ -14,11 +14,11 @@ const shopSchema = new mongoose.Schema(
     },
     isOpen: {
       type: Boolean,
-      required: true,
+      // required: true,
     },
     city: {
       type: String,
-      required: true,
+      // required: true,
       minlength: 3, // Ensure shop name is at least 3 characters long
     },
     ratings: {
@@ -40,18 +40,23 @@ const shopSchema = new mongoose.Schema(
     storeDate: {
       type: Date, // Date when the store was established or added to the system
     },
-    socialMedia: {
-      type: [String], // Array of social media links as strings
-    },
+    socialMedia: [{
+      platform: {
+        type: String, // e.g., 'Facebook', 'Instagram', etc.
+      },
+      url: {
+        type: String, // The actual social media link
+      }
+    }],    
     storeLocation: {
       type: {
         type: String, // Must be 'Point'
         enum: ['Point'], // GeoJSON format
-        required: true,
+        // required: true,
       },
       coordinates: {
         type: [Number], // Longitude, Latitude
-        required: true,
+        // required: true,
       },
     },
     image: {

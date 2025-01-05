@@ -1,4 +1,4 @@
-import { verifyJWT } from "../middleware/Authenticate.js"; // Import the verifyJWT middleware
+import { verifyJWT } from "../middleware/Authenticate.js";
 import {
   createShop,
   getAllShops,
@@ -14,20 +14,25 @@ const handlePagination = (page, limit) => {
 };
 
 async function shopRoutes(fastify, options) {
-  // Route to create a shop (with JWT authentication)
   fastify.post(
     "/api/v1/shops/create",
     { preHandler: verifyJWT },
     async (request, reply) => {
       try {
-        const shop = await createShop(request, reply);
+        // Step 1: Extract the file and form fields from the request (pass all data to the controller)
+        const data = await request.file(); // Retrieve both file and fields
+
+        // Pass the entire data object to the controller
+        const shop = await createShop(data, reply);
+
+        // Step 4: Return the success response
         reply.send({
           isSuccess: true,
           message: "Shop created successfully",
           shop,
         });
       } catch (error) {
-        console.error(error);
+        console.error("Error during shop creation:", error);
         reply.status(500).send({
           isSuccess: false,
           error: "Failed to create shop",
@@ -36,7 +41,6 @@ async function shopRoutes(fastify, options) {
     }
   );
 
-  // Route to update a shop (with JWT authentication)
   fastify.put(
     "/api/v1/shops/update/:shopId",
     { preHandler: verifyJWT },
