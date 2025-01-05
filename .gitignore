@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/server/firebase/serviceAccount.json
 /.pnp
 .pnp.*
 .yarn/*
