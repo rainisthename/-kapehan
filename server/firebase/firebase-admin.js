@@ -7,7 +7,7 @@
 // });
 
 import admin from 'firebase-admin';
-import serviceAccount from './ServiceAccount.json' assert { type: 'json' };
+// import serviceAccount from './ServiceAccount.json' assert { type: 'json' };
 
 // Initialize Firebase Admin SDK only once
 if (!admin.apps.length) {
