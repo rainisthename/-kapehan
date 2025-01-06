@@ -16,6 +16,158 @@ const validateShopFields = (fields) => {
   return null; // No fields are missing
 };
 
+// const createShop = async (data, reply) => {
+//   try {
+//     // Extract file and fields from the data object
+//     const { file, fields } = data;
+
+//     console.log("Received fields:", fields);
+
+//     if (!fields) {
+//       return reply.status(400).send({
+//         isSuccess: false,
+//         error: "No fields found in the request.",
+//       });
+//     }
+
+//     // Destructure required fields
+//     const {
+//       name,
+//       address,
+//       isOpen,
+//       ratings,
+//       about,
+//       amenities,
+//       storeTime,
+//       socialMedia,
+//       city,
+//       storeDate,
+//       storeLocation,
+//     } = fields;
+
+//     console.log("fields", fields);
+//     // Validate presence of name and address
+//     if (!name?.value || !address?.value) {
+//       return reply.status(400).send({
+//         isSuccess: false,
+//         error: "Name and address are required.",
+//       });
+//     }
+
+//     // Process and validate amenities
+//     let amenitiesArray = [];
+//     try {
+//       if (fields.amenities) {
+//         amenitiesArray = JSON.parse(fields.amenities);
+//       }
+//     } catch (error) {
+//       console.error("Error processing amenities:", error.message);
+//       return reply.status(400).send({
+//         isSuccess: false,
+//         error: "Invalid format for amenities.",
+//       });
+//     }
+//     console.log("Processed ameneties:", amenitiesArray);
+
+//     // Process and validate socialMedia
+//     let socialMediaArray = [];
+//     try {
+//       if (fields.socialMedia) {
+//         socialMediaArray = JSON.parse(fields.socialMedia);
+//       }
+//     } catch (error) {
+//       console.error("Error processing social media:", error.message);
+//       return reply.status(400).send({
+//         isSuccess: false,
+//         error: "Invalid format for social media.",
+//       });
+//     }
+
+//     console.log("Processed social media:", socialMediaArray);
+
+//     // Validate file upload
+//     const mimetype = fields.shopImage?.mimetype;
+//     const filename = fields.shopImage?.filename;
+
+//     if (!file || !mimetype || !filename) {
+//       return reply.status(400).send({
+//         isSuccess: false,
+//         error: "Shop image is required.",
+//       });
+//     }
+
+//     if (!["image/jpeg", "image/png"].includes(mimetype)) {
+//       return reply.status(400).send({
+//         isSuccess: false,
+//         error: "Only JPG and PNG images are allowed.",
+//       });
+//     }
+
+//     // Prepare Firebase Storage
+//     const storage = getStorage();
+//     const bucket = storage.bucket(); // Uses default Firebase bucket
+//     const shopUrl = name.value.toLowerCase().replace(/\s+/g, "-");
+//     const firebaseFile = bucket.file(`shops/${shopUrl}.jpg`);
+
+//     // Upload image to Firebase Storage (using streams)
+//     const uploadImageToFirebase = new Promise((resolve, reject) => {
+//       const fileStream = file.file || file;
+
+//       const stream = firebaseFile.createWriteStream({
+//         metadata: { contentType: mimetype },
+//       });
+
+//       fileStream.pipe(stream);
+
+//       stream.on("error", (err) => reject(err));
+//       stream.on("finish", () => {
+//         firebaseFile
+//           .getSignedUrl({
+//             action: "read",
+//             expires: "03-09-2491",
+//           })
+//           .then((signedUrls) => resolve(signedUrls[0]))
+//           .catch((error) => reject(error));
+//       });
+//     });
+
+//     const imageUrl = await uploadImageToFirebase;
+
+//     // Prepare the shop data for creation
+//     const newShop = new Shop({
+//       name: name.value,
+//       address: address.value,
+//       isOpen: isOpen?.value ?? true,
+//       ratings: ratings?.value ?? 0,
+//       about: about?.value,
+//       amenities: amenitiesArray,
+//       storeTime: storeTime?.value,
+//       city: city?.value,
+//       storeDate: storeDate?.value,
+//       socialMedia: socialMediaArray,
+//       storeLocation: storeLocation?.value,
+//       image: imageUrl,
+//     });
+
+//     // Save the shop to the database
+//     await newShop.save();
+
+//     console.log("Shop created successfully:", newShop);
+
+//     return reply.status(201).send({
+//       isSuccess: true,
+//       shop: newShop,
+//     });
+//   } catch (error) {
+//     console.error("Error creating shop:", error);
+
+//     return reply.status(500).send({
+//       isSuccess: false,
+//       error: "Failed to create shop.",
+//     });
+//   }
+// };
+
 const createShop = async (data, reply) => {
   try {
     // Extract file and fields from the data object
@@ -47,7 +199,7 @@ const createShop = async (data, reply) => {
 
     console.log("fields", fields);
     // Validate presence of name and address
-    if (!name?.value || !address?.value || !socialMedia.value || !amenities.value) {
+    if (!name?.value || !address?.value || !socialMedia.value) {
       return reply.status(400).send({
         isSuccess: false,
         error: "Name and address are required.",
@@ -57,8 +209,9 @@ const createShop = async (data, reply) => {
     // Process and validate amenities
     let amenitiesArray = [];
     try {
+      console.log("Raw amenities:", fields.amenities);
       if (fields.amenities) {
-        amenitiesArray = JSON.parse(fields.amenities.value);
+        amenitiesArray = JSON.parse(fields.amenities);
       }
     } catch (error) {
       console.error("Error processing amenities:", error.message);
@@ -67,13 +220,14 @@ const createShop = async (data, reply) => {
         error: "Invalid format for amenities.",
       });
     }
-    console.log("Processed ameneties:", amenitiesArray);
+    console.log("Processed amenities:", amenitiesArray);
 
     // Process and validate socialMedia
     let socialMediaArray = [];
     try {
+      console.log("Raw social media:", fields.socialMedia);
       if (fields.socialMedia) {
-        socialMediaArray = JSON.parse(fields.socialMedia.value);
+        socialMediaArray = JSON.parse(fields.socialMedia);
       }
     } catch (error) {
       console.error("Error processing social media:", error.message);

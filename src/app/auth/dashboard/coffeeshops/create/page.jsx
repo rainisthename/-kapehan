@@ -48,23 +48,13 @@ const DashboardForm = () => {
     "San Juan", 
     "Taguig", 
     "Valenzuela" 
-  ]
+  ];
 
   const handleAmenityClick = (amenity) => {
     const updatedAmenities = selectedAmenities.includes(amenity)
-      ? selectedAmenities
-      : [...selectedAmenities, amenity];
-    setSelectedAmenities(updatedAmenities);
-    setFormData((prevState) => ({
-      ...prevState,
-      amenities: updatedAmenities,
-    }));
-  };
+      ? selectedAmenities.filter((item) => item !== amenity) // Remove if exists
+      : [...selectedAmenities, amenity]; // Add if not exists
 
-  const removeAmenity = (amenity) => {
-    const updatedAmenities = selectedAmenities.filter(
-      (item) => item !== amenity
-    );
     setSelectedAmenities(updatedAmenities);
     setFormData((prevState) => ({
       ...prevState,
@@ -75,7 +65,6 @@ const DashboardForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Only handle other form data (not social media here)
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -85,14 +74,14 @@ const DashboardForm = () => {
   };
 
   const handleSocialMediaChange = (e, index) => {
-    const { value } = e.target; // We no longer need to extract name because it will always be 'url'
+    const { value } = e.target;
 
     const updatedSocialMedia = [...formData.socialMedia];
-    updatedSocialMedia[index] = { ...updatedSocialMedia[index], url: value }; // Update the URL only
+    updatedSocialMedia[index] = { ...updatedSocialMedia[index], url: value };
 
     setFormData((prevState) => ({
       ...prevState,
-      socialMedia: updatedSocialMedia, // Update the socialMedia field in the form data
+      socialMedia: updatedSocialMedia,
     }));
   };
 
@@ -141,18 +130,18 @@ const DashboardForm = () => {
     formDataToSubmit.append("city", formData.city);
     formDataToSubmit.append("about", formData.about);
     formDataToSubmit.append("storeTime", storeTime);
-    formDataToSubmit.append("shopImage", formData.shopImage);
-  
-    // Serialize arrays and objects
+
+    if (formData.shopImage) {
+      formDataToSubmit.append("shopImage", formData.shopImage);
+    }
+
     formDataToSubmit.append("amenities", JSON.stringify(formData.amenities));
     formDataToSubmit.append("socialMedia", JSON.stringify(formData.socialMedia));
-  
-    // Debugging: Check the data being sent
+
     console.log([...formDataToSubmit.entries()]);
-    console.log("FormData:", Object.fromEntries(formDataToSubmit.entries()));
 
     try {
-      await createShop(formDataToSubmit); // Ensure your backend endpoint parses JSON
+      await createShop(formDataToSubmit);
       setLoading(false);
       resetForm();
       setAlert({
@@ -168,7 +157,7 @@ const DashboardForm = () => {
       });
     }
   };
-  
+
   return (
     <div className="font-poppins p-6 relative">
       {loading && (
@@ -267,8 +256,7 @@ const DashboardForm = () => {
         <AmenitySelection
           availableAmenities={availableAmenities}
           selectedAmenities={selectedAmenities}
-          onSelectAmenity={handleAmenityClick} // Ensure this prop is passed correctly
-          onRemoveAmenity={removeAmenity} // Ensure this prop is passed correctly
+          onSelectAmenity={handleAmenityClick}
         />
 
         <StoreTime
@@ -284,9 +272,9 @@ const DashboardForm = () => {
           <div key={index}>
             <input
               type="text"
-              name="url" // Use "url" as the name so we always update the correct field
-              value={item.url || ""} // Make sure we're displaying the URL
-              onChange={(e) => handleSocialMediaChange(e, index)} // Pass the index for updating the correct entry
+              name="url"
+              value={item.url || ""}
+              onChange={(e) => handleSocialMediaChange(e, index)}
               placeholder={`${
                 item.platform.charAt(0).toUpperCase() + item.platform.slice(1)
               } URL`}
