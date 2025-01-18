@@ -26,7 +26,11 @@ export const getShops = async () => {
   export const createShop = async (shopData) => {
     try {
       // Make the POST request with the shop data (FormData object)
-      const response = await apiService.post("/shops/create", shopData);
+      const response = await apiService.post("/shops/create", shopData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Ensure the request is sent as FormData
+        },
+      });
   
       // Extract shop data safely
       const shop = response.data?.shop || null;

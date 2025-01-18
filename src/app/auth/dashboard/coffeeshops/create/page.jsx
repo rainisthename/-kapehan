@@ -73,6 +73,17 @@ const DashboardForm = () => {
     setErrors({ ...errors, [name]: "" });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prevState) => ({
+        ...prevState,
+        shopImage: file,
+      }));
+    }
+  };
+
+
   const handleSocialMediaChange = (e, index) => {
     const { value } = e.target;
 
@@ -121,29 +132,41 @@ const DashboardForm = () => {
     e.preventDefault();
     if (!validateForm()) return;
     setLoading(true);
+    console.log('formData', formData)
   
     const storeTime = `${formData.openTime} AM - ${formData.closeTime} PM`;
   
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append("name", formData.name);
-    formDataToSubmit.append("address", formData.address);
-    formDataToSubmit.append("city", formData.city);
-    formDataToSubmit.append("about", formData.about);
-    formDataToSubmit.append("storeTime", storeTime);
+    const multipartData = new FormData();
+    multipartData.append("name", formData.name);
+    multipartData.append("address", formData.address);
+    multipartData.append("city", formData.city);
+    multipartData.append("about", formData.about);
+    multipartData.append("storeTime", storeTime);
 
     if (formData.shopImage) {
-      formDataToSubmit.append("shopImage", formData.shopImage);
+      multipartData.append("shopImage", formData.shopImage);
     }
 
-    formDataToSubmit.append("amenities", JSON.stringify(formData.amenities));
-    formDataToSubmit.append("socialMedia", JSON.stringify(formData.socialMedia));
+    formData.amenities.forEach((amenity, index) => {
+      multipartData.append(`amenities[${index}]`, amenity);
+    });
 
-    console.log([...formDataToSubmit.entries()]);
+    formData.socialMedia.forEach((socialMedium, index) => {
+      multipartData.append(`socialMedia[${index}]`, socialMedium.url);
+    });
+    
+    // multipartData.append("socialMedia", JSON.stringify(formData.socialMedia));
+
+    console.log([...multipartData.entries()]);
+    // console.log('multipartData', multipartData)
+    // setLoading(false);
+ 
+    // return;
 
     try {
-      await createShop(formDataToSubmit);
+      await createShop(formData);
       setLoading(false);
-      resetForm();
+      // resetForm();
       setAlert({
         message: "Store created successfully!",
         type: "success",

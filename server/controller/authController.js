@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import User from "../lib/userModel.js"; // Assuming User model is imported correctly
 import { verifyJWT, decodeJWT } from "../middleware/Authenticate.js";
+
 export const loginUser = async (request, reply) => {
   try {
     const { username, password } = request.body;

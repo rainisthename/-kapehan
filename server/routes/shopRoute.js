@@ -6,6 +6,7 @@ import {
   updateShop,
   deleteShop,
 } from "../controller/shopController.js";
+// import { writeFile } from "fs/promises"
 
 // Helper function to handle pagination
 const handlePagination = (page, limit) => {
@@ -13,6 +14,11 @@ const handlePagination = (page, limit) => {
   return { skip, limit };
 };
 
+/**
+ * 
+ * @param {import("fastify").FastifyInstance} fastify 
+ * @param {import("fastify").FastifyHttpOptions} options 
+ */
 async function shopRoutes(fastify, options) {
   fastify.post(
     "/api/v1/shops/create",
@@ -20,20 +26,83 @@ async function shopRoutes(fastify, options) {
     async (request, reply) => {
       try {
         // Step 1: Extract the file and form fields from the request (pass all data to the controller)
-        const data = await request.file(); // Retrieve both file and fields
+        const parts = request.parts();
+        let shopData = {
+          file: null,
+          fields: {
+            amenities: [],
+            socialMedia: {}
+          },
+        };
 
+        try {
+          shopData.fields = shopData.fields || {};
+          shopData.fields.amenities = shopData.fields.amenities || [];
+          const socialMediaData = {};
+
+          for await (const part of parts) {
+            if (part.file) {
+              shopData.fields.shopImage = {
+                filename: part.filename,
+                mimetype: part.mimetype,
+              }
+              const buffer = await part.toBuffer();
+              shopData.file = buffer; // Store the file as a buffer or save it to a path
+            } else {
+              if (part.fieldname.includes("amenities")) {
+                shopData.fields.amenities.push(part.value);
+              } else if (part.fieldname.includes("socialMedia")) {
+                console.log("part.fieldname", part.fieldname);
+                console.log("part.value", part.value);
+                // Process socialMedia fields
+                const socialMediaMatch = part.fieldname.match(/^socialMedia\[(\d+)]\[(\w+)]$/);
+                if (socialMediaMatch) {
+                  const [, index, key] = socialMediaMatch; // Destructure index and key
+                  socialMediaData[index] = socialMediaData[index] || {}; // Ensure the index exists
+                  socialMediaData[index][key] = part.value; // Assign value to the key
+                } else if (part.fieldname.startsWith("socialMedia")) {
+                  shopData.fields.socialMedia = shopData.fields.socialMedia || {};
+                  shopData.fields.socialMedia[part.fieldname] = part.value;
+                }
+
+                // After processing all parts, map socialMediaData to the final object
+                shopData.fields.socialMedia = Object.values(socialMediaData).reduce(
+                  (acc, curr) => {
+                    if (curr.platform && curr.url) {
+                      acc[curr.platform] = curr.url;
+                    }
+                    return acc;
+                  },
+                  { facebook: "", instagram: "", twitter: "" } // Initialize default structure
+                );
+              } else {
+                shopData.fields[part.fieldname] = part.value;
+              }
+            }
+          }
+
+          console.log("Finished processing all parts");
+          // console.log("Final shopData:", shopData);
+        } catch (error) {
+          console.error("Error in for await loop:", error);
+        }
+
+        // Add the image path to the shop data
+        // shopData.imagePath = shopImage;
+        console.log('shopData', shopData)
+        // return;
         // Pass the entire data object to the controller
-        const shop = await createShop(data, reply);
-
+        const shop = await createShop(shopData, reply);
+        console.log("created shop")
         // Step 4: Return the success response
-        reply.send({
+        return reply.send({
           isSuccess: true,
           message: "Shop created successfully",
           shop,
         });
       } catch (error) {
         console.error("Error during shop creation:", error);
-        reply.status(500).send({
+        return reply.status(500).send({
           isSuccess: false,
           error: "Failed to create shop",
         });
