@@ -3,5 +3,6 @@ export const pageEndpoints = {
     explore: "/explore",
     blogs: "/blogs",
     about: "/about",
+    search: "/search"
   };
   

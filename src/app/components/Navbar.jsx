@@ -24,6 +24,10 @@ const Navbar = () => {
               pageTitle={"coffee shops."}
               endpoint={pageEndpoints.explore}
             />
+            <Links
+              pageTitle={"search coffee shop."}
+              endpoint={pageEndpoints.search}
+            />
             <Links pageTitle={"blogs."} endpoint={pageEndpoints.blogs} />
             <Links pageTitle={"about us."} endpoint={pageEndpoints.about} />
           </div>
