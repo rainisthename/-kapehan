@@ -197,47 +197,47 @@ const createShop = async (data, reply) => {
       storeLocation,
     } = fields;
 
-    console.log("fields", fields);
+    // console.log("fields", fields);
     // Validate presence of name and address
-    if (!name?.value || !address?.value || !socialMedia.value) {
-      return reply.status(400).send({
-        isSuccess: false,
-        error: "Name and address are required.",
-      });
-    }
+    // if (!name || !address) {
+    //   return reply.status(400).send({
+    //     isSuccess: false,
+    //     error: "Name and address are required.",
+    //   });
+    // }
 
-    // Process and validate amenities
-    let amenitiesArray = [];
-    try {
-      console.log("Raw amenities:", fields.amenities);
-      if (fields.amenities) {
-        amenitiesArray = JSON.parse(fields.amenities);
-      }
-    } catch (error) {
-      console.error("Error processing amenities:", error.message);
-      return reply.status(400).send({
-        isSuccess: false,
-        error: "Invalid format for amenities.",
-      });
-    }
-    console.log("Processed amenities:", amenitiesArray);
+    // // Process and validate amenities
+    // let amenitiesArray = [];
+    // try {
+    console.log("Raw amenities:", fields.amenities);
+    //   if (fields.amenities) {
+    //     amenitiesArray = JSON.parse(fields.amenities);
+    //   }
+    // } catch (error) {
+    //   console.error("Error processing amenities:", error.message);
+    //   return reply.status(400).send({
+    //     isSuccess: false,
+    //     error: "Invalid format for amenities.",
+    //   });
+    // }
+    // console.log("Processed amenities:", amenitiesArray);
 
     // Process and validate socialMedia
-    let socialMediaArray = [];
-    try {
-      console.log("Raw social media:", fields.socialMedia);
-      if (fields.socialMedia) {
-        socialMediaArray = JSON.parse(fields.socialMedia);
-      }
-    } catch (error) {
-      console.error("Error processing social media:", error.message);
-      return reply.status(400).send({
-        isSuccess: false,
-        error: "Invalid format for social media.",
-      });
-    }
+    // let socialMediaArray = [];
+    // try {
+    console.log("Raw social media:", fields.socialMedia);
+    //   if (fields.socialMedia) {
+    //     socialMediaArray = JSON.parse(fields.socialMedia);
+    //   }
+    // } catch (error) {
+    //   console.error("Error processing social media:", error.message);
+    //   return reply.status(400).send({
+    //     isSuccess: false,
+    //     error: "Invalid format for social media.",
+    //   });
+    // }
 
-    console.log("Processed social media:", socialMediaArray);
+    // console.log("Processed social media:", socialMediaArray);
 
     // Validate file upload
     const mimetype = fields.shopImage?.mimetype;
