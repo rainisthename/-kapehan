@@ -1,6 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image"; // Optional if you want to use Next.js Image component
 import coffeeShop from "../../../../public/images/coffeeshop.jpg";
 import {
@@ -17,6 +17,9 @@ import ReviewList from "../../components/Reviews";
 import { FaClock } from "react-icons/fa6";
 import MapComponent from "../../components/GoogleMaps";
 import Modal from "../../components/RatingModal";
+import AuthModal from "../../components/AuthModal";
+import useFirebaseAuth from "@/hooks/useFirebaseAuth";
+
 const drinks = [
   {
     name: "Spanish Latte",
@@ -84,47 +87,60 @@ const desserts = [
   // Add more dessert items here...
 ];
 
+const parallaxStyle = {
+  backgroundImage: `url(${coffeeShop.src})`, // Use .src when using the Image import
+  minHeight: "60vh",
+  backgroundAttachment: "fixed",
+  backgroundPosition: "top",
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "cover",
+  position: "relative",
+};
+
+const overlayStyle = {
+  backgroundColor: "rgba(0, 0, 0, 0.7)",
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+};
+
+const centerTextStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  textAlign: "center",
+};
+
+const latitude = 14.5995; // Example latitude
+const longitude = 120.9842; // Example longitude
+
 export default function CoffeeShopDetail() {
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user } = useFirebaseAuth();
+  // const token = getIdToken(user)
   const [showModal, setShowModal] = useState(false);
-
-  const handleCloseModal = () => setShowModal(false);
-
-  const params = useParams();
-  const { name } = params; // Extracts the 'name' part from the URL
-
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState("coffee"); // State to manage the active tab
+  const { name } = useParams();
+
+  useEffect(() => {
+    if(showAuthModal && user) {
+      setShowAuthModal(false);
+      setShowModal(true);
+    }
+  }, [showAuthModal, user])
+  
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setShowAuthModal(false);
+    // Close modal functions; can be used for both modals
+  }
 
   const formattedName = decodeURIComponent(name).replace(/-/g, " ");
-
-  const parallaxStyle = {
-    backgroundImage: `url(${coffeeShop.src})`, // Use .src when using the Image import
-    minHeight: "60vh",
-    backgroundAttachment: "fixed",
-    backgroundPosition: "top",
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
-    position: "relative",
-  };
-
-  const overlayStyle = {
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-  };
-
-  const centerTextStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    textAlign: "center",
-  };
-
-  const latitude = 14.5995; // Example latitude
-  const longitude = 120.9842; // Example longitude
 
   return (
     <div className="min-h-screen bg-[#F6F6F6]">
@@ -245,7 +261,8 @@ export default function CoffeeShopDetail() {
           <ReviewList />
         </div>
         <button
-          onClick={() => setShowModal(true)} // Show modal when button is clicked
+          onClick={() => user ? setShowModal(true) : setShowAuthModal(true)} // Show modal when button is clicked
+          // onClick={() => setShowAuthModal(true)} // Show modal when button is clicked
           className="px-8 py-3 md:px-10 md:py-4 bg-white text-gray-800 rounded-full font-poppins cursor-pointer border border-gray-800 shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all duration-300"
         >
           Write a review
@@ -253,6 +270,7 @@ export default function CoffeeShopDetail() {
 
         {/* Modal component with show and close handlers */}
         <Modal show={showModal} onClose={handleCloseModal} />
+        <AuthModal show={showAuthModal} onClose={handleCloseModal} />
       </div>
     </div>
   );

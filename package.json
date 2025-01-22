@@ -26,6 +26,7 @@
     "fastify-cookie": "^5.7.0",
     "fastify-multer": "^2.0.3",
     "fastify-nextjs": "^7.3.0",
+    "firebase": "^11.2.0",
     "firebase-admin": "^13.0.2",
     "jose": "^5.9.6",
     "js-cookie": "^3.0.5",
