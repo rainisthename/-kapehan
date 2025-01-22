@@ -13,6 +13,7 @@ import fastifyCors from "@fastify/cors"; // Import Fastify CORS plugin
 import corsOptions from "./lib/corsConfig.js"; // Import CORS options
 // import fastifyMulter from 'fastify-multer'; // Import fastify-multer
 import fastifyMultipart from "@fastify/multipart";
+import reviewsRoutes from "./routes/reviews.js";
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ async function startServer() {
     fastify.register(healthCheck);
     fastify.register(dataRoutes);
     fastify.register(shopRoutes); // This route will now have access to fastify.multer
+    fastify.register(reviewsRoutes);
 
     // Start the server
     await fastify.listen({ port: process.env.PORT || 5000 });
